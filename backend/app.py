@@ -10,6 +10,7 @@ Usage:
 """
 
 import datetime
+import html as html_lib
 import json
 import os
 import re
@@ -108,6 +109,11 @@ def is_relevant(title: str, snippet: str, query: str, threshold: float = 0.25) -
 
 
 # ── DDG URL decoder ───────────────────────────────────────────────────────────
+def _strip(text: str) -> str:
+    """Strip HTML tags then decode entities like &quot; &amp; &#x27; etc."""
+    return html_lib.unescape(re.sub(r"<[^>]+>", "", text)).strip()
+
+
 def _decode_ddg_url(href: str) -> str:
     """
     DDG wraps result URLs as:
@@ -324,12 +330,12 @@ def search_ddg(query: str, limit: int, now: int) -> list[dict]:
         # Skip DDG-internal pages (bang redirects, settings, etc.)
         if not url.startswith("http") or "duckduckgo.com" in url:
             continue
-        title = re.sub(r"<[^>]+>", "", title_html).strip()
+        title = _strip(title_html)
         if not title:
             continue
         snippet = ""
         if i < len(snippets_raw):
-            snippet = re.sub(r"<[^>]+>", "", snippets_raw[i]).strip()
+            snippet = _strip(snippets_raw[i])
         if not is_relevant(title, snippet, query):
             continue
         # DDG doesn't give dates — assign a synthetic decreasing timestamp
