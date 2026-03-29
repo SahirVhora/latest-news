@@ -1,4 +1,4 @@
-export type Source = "Reddit" | "HackerNews" | "DevTo" | "GitHub" | "DuckDuckGo";
+export type Source = "Reddit" | "HackerNews" | "DevTo" | "GitHub";
 
 export interface Article {
   id: string;
@@ -35,7 +35,7 @@ export interface SearchResponse {
 export type SortBy = "date" | "engagement";
 export type Mode = "quick" | "standard" | "deep";
 
-export const SOURCE_KEYS = ["reddit", "hn", "devto", "github", "ddg"] as const;
+export const SOURCE_KEYS = ["reddit", "hn", "devto", "github"] as const;
 export type SourceKey = typeof SOURCE_KEYS[number];
 
 export const SOURCE_LABELS: Record<SourceKey, string> = {
@@ -43,21 +43,18 @@ export const SOURCE_LABELS: Record<SourceKey, string> = {
   hn: "Hacker News",
   devto: "Dev.to",
   github: "GitHub",
-  ddg: "DuckDuckGo",
 };
 
 export const SOURCE_COLORS: Record<Source, string> = {
-  Reddit: "bg-reddit/20 text-[#ff6633] border border-reddit/30",
-  HackerNews: "bg-hn/20 text-[#ff8c42] border border-hn/30",
-  DevTo: "bg-devto/20 text-purple-400 border border-devto/30",
-  GitHub: "bg-github/20 text-slate-300 border border-github/30",
-  DuckDuckGo: "bg-ddg/20 text-orange-300 border border-ddg/30",
+  Reddit:      "bg-reddit/20 text-[#ff6633] border border-reddit/30",
+  HackerNews:  "bg-hn/20 text-[#ff8c42] border border-hn/30",
+  DevTo:       "bg-devto/20 text-purple-400 border border-devto/30",
+  GitHub:      "bg-github/20 text-slate-300 border border-github/30",
 };
 
 export const SOURCE_DOT: Record<Source, string> = {
-  Reddit: "bg-reddit",
+  Reddit:     "bg-reddit",
   HackerNews: "bg-hn",
-  DevTo: "bg-devto",
-  GitHub: "bg-github",
-  DuckDuckGo: "bg-ddg",
+  DevTo:      "bg-devto",
+  GitHub:     "bg-github",
 };

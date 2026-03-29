@@ -4,7 +4,7 @@ import { ClaudePromptBox } from "./components/ClaudePromptBox";
 import { LoadingCards } from "./components/LoadingCards";
 import { ResultCard } from "./components/ResultCard";
 import { StatsBar } from "./components/StatsBar";
-import type { Article, Mode, SearchResponse, SortBy, SourceKey } from "./types";
+import type { Article, Mode, Source, SearchResponse, SortBy, SourceKey } from "./types";
 import { SOURCE_DOT, SOURCE_KEYS, SOURCE_LABELS } from "./types";
 
 const DEFAULT_SOURCES: SourceKey[] = ["reddit", "hn", "devto", "github"];
@@ -102,20 +102,10 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            {(["reddit", "hn", "devto", "github", "ddg"] as SourceKey[]).map((k) => (
-              <span
-                key={k}
-                title={SOURCE_LABELS[k]}
-                className={`w-2 h-2 rounded-full ${SOURCE_DOT[
-                  k === "reddit" ? "Reddit"
-                  : k === "hn" ? "HackerNews"
-                  : k === "devto" ? "DevTo"
-                  : k === "github" ? "GitHub"
-                  : "DuckDuckGo"
-                ]} opacity-70`}
-              />
+            {(["Reddit", "HackerNews", "DevTo", "GitHub"] as Source[]).map((s) => (
+              <span key={s} title={s} className={`w-2 h-2 rounded-full ${SOURCE_DOT[s]} opacity-70`} />
             ))}
-            <span className="ml-1 text-xs text-slate-500">5 sources</span>
+            <span className="ml-1 text-xs text-slate-500">4 sources</span>
           </div>
         </div>
       </header>
