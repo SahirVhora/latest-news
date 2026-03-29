@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: latest-news
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: gunicorn --chdir backend app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    plan: free
