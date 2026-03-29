@@ -25,7 +25,12 @@ from flask_cors import CORS
 # ── App setup ─────────────────────────────────────────────────────────────────
 DIST_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="/")
-CORS(app, origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"])
+CORS(app, origins=[
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "https://sahirvhora.github.io",
+])
 
 DAYS_30 = 30 * 24 * 3600
 
