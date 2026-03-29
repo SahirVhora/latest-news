@@ -17,6 +17,7 @@ export default function App() {
   const [result, setResult] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [filterSource, setFilterSource] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,8 +45,22 @@ export default function App() {
     try {
       const data = await search(q, mode, sources);
       setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
+    } catch {
+      // Auto-retry once — handles Render free-tier cold starts (30-50s wake time)
+      setRetrying(true);
+      try {
+        await new Promise((r) => setTimeout(r, 4000));
+        const data = await search(q, mode, sources);
+        setResult(data);
+      } catch (err2) {
+        setError(
+          "Could not reach the search server. " +
+          "It may be waking up — please wait 30 seconds and try again."
+        );
+        console.error(err2);
+      } finally {
+        setRetrying(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -198,8 +213,15 @@ export default function App() {
           </div>
         )}
 
-        {/* Loading skeletons */}
-        {loading && <LoadingCards />}
+        {/* Loading / waking up */}
+        {loading && !retrying && <LoadingCards />}
+        {retrying && (
+          <div className="flex flex-col items-center gap-3 py-16 animate-fade-in">
+            <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-slate-400 text-sm">Server waking up — retrying automatically…</p>
+            <p className="text-slate-600 text-xs">Free hosting sleeps after inactivity. Usually ready in &lt;30s.</p>
+          </div>
+        )}
 
         {/* Results */}
         {result && !loading && (
