@@ -1,6 +1,6 @@
 import type { Article } from "../types";
 import { isRelevant } from "../utils/relevance";
-import { fmtDate, engagementScore, DAYS_30_MS } from "./shared";
+import { fmtDate, engagementScore, DAYS_30_MS, decodeHtml } from "./shared";
 
 // corsproxy.io adds the required CORS headers so the browser can reach Reddit's JSON API
 const PROXY = "https://corsproxy.io/?url=";
@@ -36,8 +36,8 @@ export async function searchReddit(query: string, limit: number): Promise<Articl
   return (data.data?.children ?? []).flatMap(({ data: p }) => {
     const ts = p.created_utc * 1000;
     if (ts < cutoff) return [];
-    const title = p.title ?? "";
-    const snippet = (p.selftext || p.url || "").slice(0, 400);
+    const title = decodeHtml(p.title ?? "");
+    const snippet = decodeHtml((p.selftext || p.url || "").slice(0, 400));
     if (!isRelevant(title, snippet, query)) return [];
     const upvotes = p.score ?? 0;
     const comments = p.num_comments ?? 0;

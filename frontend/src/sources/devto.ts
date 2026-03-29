@@ -1,6 +1,6 @@
 import type { Article } from "../types";
 import { isRelevant } from "../utils/relevance";
-import { fmtDate, engagementScore, DAYS_30_MS } from "./shared";
+import { fmtDate, engagementScore, DAYS_30_MS, decodeHtml } from "./shared";
 
 interface DevToArticle {
   id: number;
@@ -26,8 +26,8 @@ export async function searchDevTo(query: string, limit: number): Promise<Article
   return data.flatMap((a) => {
     const ts = new Date(a.published_at).getTime();
     if (ts < cutoff) return [];
-    const title = a.title ?? "";
-    const snippet = a.description ?? "";
+    const title = decodeHtml(a.title ?? "");
+    const snippet = decodeHtml(a.description ?? "");
     if (!isRelevant(title, snippet, query)) return [];
     const upvotes = a.positive_reactions_count ?? 0;
     const comments = a.comments_count ?? 0;

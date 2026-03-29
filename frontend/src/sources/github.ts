@@ -1,6 +1,6 @@
 import type { Article } from "../types";
 import { isRelevant } from "../utils/relevance";
-import { fmtDate, engagementScore, DAYS_30_MS } from "./shared";
+import { fmtDate, engagementScore, DAYS_30_MS, decodeHtml } from "./shared";
 
 interface GHRepo {
   id: number;
@@ -32,8 +32,8 @@ export async function searchGitHub(query: string, limit: number): Promise<Articl
   const now = Date.now();
   return (data.items ?? []).flatMap((repo) => {
     const ts = new Date(repo.created_at).getTime();
-    const title = repo.full_name;
-    const snippet = repo.description ?? "";
+    const title = decodeHtml(repo.full_name);
+    const snippet = decodeHtml(repo.description ?? "");
     if (!isRelevant(title, snippet, query, 0.2)) return [];
     const stars = repo.stargazers_count ?? 0;
     const forks = repo.forks_count ?? 0;

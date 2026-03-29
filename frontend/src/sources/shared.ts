@@ -1,5 +1,15 @@
 export const DAYS_30_MS = 30 * 24 * 60 * 60 * 1000;
 
+/**
+ * Decode HTML entities in text returned by APIs (e.g. Reddit returns &amp; &quot; &#39;).
+ * Uses a hidden textarea so the browser handles every entity correctly.
+ */
+export function decodeHtml(text: string): string {
+  const el = document.createElement("textarea");
+  el.innerHTML = text;
+  return el.value;
+}
+
 export function fmtDate(ts: number): string {
   return new Date(ts).toLocaleDateString("en-GB", {
     day: "2-digit", month: "short", year: "numeric",

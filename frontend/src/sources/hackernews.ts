@@ -1,6 +1,6 @@
 import type { Article } from "../types";
 import { isRelevant } from "../utils/relevance";
-import { fmtDate, engagementScore, DAYS_30_MS } from "./shared";
+import { fmtDate, engagementScore, DAYS_30_MS, decodeHtml } from "./shared";
 
 export async function searchHN(query: string, limit: number): Promise<Article[]> {
   const cutoff = Math.floor((Date.now() - DAYS_30_MS) / 1000);
@@ -16,8 +16,8 @@ export async function searchHN(query: string, limit: number): Promise<Article[]>
   const now = Date.now();
   return data.hits.flatMap((hit) => {
     const ts = (hit.created_at_i as number) * 1000;
-    const title = (hit.title as string) ?? "";
-    const snippet = (hit.story_text as string) ?? "";
+    const title = decodeHtml((hit.title as string) ?? "");
+    const snippet = decodeHtml((hit.story_text as string) ?? "");
     if (!isRelevant(title, snippet, query)) return [];
     const upvotes = (hit.points as number) ?? 0;
     const comments = (hit.num_comments as number) ?? 0;
