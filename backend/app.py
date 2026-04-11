@@ -22,6 +22,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
+# --- CACHE SYSTEM ---
+# Simple in-memory cache: { "query_mode_sources": (timestamp, data) }
+SEARCH_CACHE = {}
+CACHE_TTL = 900  # 15 minutes in seconds
+
 # ── App setup ─────────────────────────────────────────────────────────────────
 DIST_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="/")
@@ -427,7 +432,16 @@ def api_search():
     if not active:
         active = ["reddit", "hn"]
 
+    # --- CACHE CHECK ---
+    cache_key = f"{query}_{mode}_{','.join(sorted(active))}".lower()
     now = _now()
+    if cache_key in SEARCH_CACHE:
+        timestamp, cached_data = SEARCH_CACHE[cache_key]
+        if now - timestamp < CACHE_TTL:
+            # Update timestamp to slide the window (optional)
+            SEARCH_CACHE[cache_key] = (now, cached_data)
+            return jsonify(cached_data)
+
     limits = LIMITS[mode]
     all_articles: list[dict] = []
     sources_found: dict[str, int] = {}
@@ -451,7 +465,7 @@ def api_search():
     # Sort newest first (primary), then by engagement score (secondary)
     all_articles.sort(key=lambda a: (a["date_ts"], a["score"]), reverse=True)
 
-    return jsonify({
+    response_data = {
         "query": query,
         "mode": mode,
         "sources_queried": active,
@@ -464,7 +478,12 @@ def api_search():
             "comments": sum(a["comments"] for a in all_articles),
         },
         "claude_prompt": build_prompt(query, all_articles),
-    })
+    }
+
+    # --- SAVE TO CACHE ---
+    SEARCH_CACHE[cache_key] = (now, response_data)
+
+    return jsonify(response_data)
 
 
 # ── Serve built React SPA ────────────────────────────────────────────────────
