@@ -44,7 +44,7 @@ export function ResultCard({ article }: Props) {
 
       {/* Snippet */}
       {snippet && (
-        <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 border-l-2 border-navy-700 pl-2">
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 max-h-[4.5rem] overflow-hidden border-l-2 border-navy-700 pl-2">
           {snippet}
         </p>
       )}

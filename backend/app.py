@@ -30,12 +30,10 @@ CACHE_TTL = 900  # 15 minutes in seconds
 # ── App setup ─────────────────────────────────────────────────────────────────
 DIST_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 app = Flask(__name__, static_folder=DIST_DIR, static_url_path="/")
-CORS(app, origins=[
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "https://sahirvhora.github.io",
-])
+_default_origins = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,https://sahirvhora.github.io"
+CORS(app, origins=os.environ.get("ALLOWED_ORIGINS", _default_origins).split(","))
+
+_scrape_semaphore = threading.Semaphore(5)
 
 DAYS_30 = 30 * 24 * 3600
 
@@ -447,9 +445,13 @@ def api_search():
     sources_found: dict[str, int] = {}
     sources_errors: dict[str, str] = {}
 
+    def _run_source(src):
+        with _scrape_semaphore:
+            return SOURCE_FNS[src](query, limits[src], now)
+
     with ThreadPoolExecutor(max_workers=len(active)) as ex:
         futures = {
-            ex.submit(SOURCE_FNS[src], query, limits[src], now): src
+            ex.submit(_run_source, src): src
             for src in active
         }
         for future in as_completed(futures, timeout=25):
@@ -498,6 +500,27 @@ def serve_spa(path: str):
     if os.path.exists(index):
         return send_from_directory(dist, "index.html")
     return jsonify({"info": "Run 'npm run build' in /frontend to serve the UI here"}), 404
+
+
+# ── Error handlers ───────────────────────────────────────────────────────────
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"status": "error", "error": str(e)}), 400
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"status": "error", "error": str(e)}), 404
+
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    return jsonify({"status": "error", "error": str(e)}), 405
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return jsonify({"status": "error", "error": str(e)}), 500
 
 
 if __name__ == "__main__":

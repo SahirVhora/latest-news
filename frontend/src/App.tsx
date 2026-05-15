@@ -20,6 +20,9 @@ export default function App() {
   const [retrying, setRetrying] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [filterSource, setFilterSource] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("ln_recent_searches") ?? "[]"); } catch { return []; }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut: "/" focuses search
@@ -34,8 +37,8 @@ export default function App() {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const handleSearch = useCallback(async () => {
-    const q = query.trim();
+  const handleSearch = useCallback(async (overrideQuery?: string) => {
+    const q = (overrideQuery ?? query).trim();
     if (!q || loading) return;
     setLoading(true);
     setError(null);
@@ -45,6 +48,11 @@ export default function App() {
     try {
       const data = await search(q, mode, sources);
       setResult(data);
+      setRecentSearches((prev) => {
+        const updated = [q, ...prev.filter((s) => s !== q)].slice(0, 8);
+        localStorage.setItem("ln_recent_searches", JSON.stringify(updated));
+        return updated;
+      });
     } catch {
       // Auto-retry once — handles Render free-tier cold starts (30-50s wake time)
       setRetrying(true);
@@ -149,10 +157,26 @@ export default function App() {
                 </div>
               )}
             </div>
-            <button className="btn-primary whitespace-nowrap" onClick={handleSearch} disabled={loading || !query.trim()}>
+            <button className="btn-primary whitespace-nowrap" onClick={() => handleSearch()} disabled={loading || !query.trim()}>
               {loading ? "Searching…" : "Search"}
             </button>
           </div>
+
+          {/* Recent searches chips */}
+          {!result && !loading && recentSearches.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-slate-500 shrink-0">Recent searches:</span>
+              {recentSearches.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => { setQuery(s); handleSearch(s); }}
+                  className="text-xs px-2.5 py-1 rounded-full bg-navy-800 border border-navy-700 text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Controls */}
           <div className="mt-3 flex flex-wrap items-center gap-4">

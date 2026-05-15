@@ -4,6 +4,9 @@ import { searchGitHub } from "./sources/github";
 import { searchReddit } from "./sources/reddit";
 import type { Article, Mode, SearchResponse, SourceKey } from "./types";
 
+const cache = new Map<string, { data: SearchResponse; expiry: number }>();
+const CACHE_TTL = 300_000;
+
 const LIMITS: Record<Mode, Record<string, number>> = {
   quick:    { reddit: 15, hn: 15, devto: 15, github: 15 },
   standard: { reddit: 30, hn: 25, devto: 20, github: 20 },
@@ -40,6 +43,10 @@ export async function search(
   mode: Mode,
   sources: SourceKey[],
 ): Promise<SearchResponse> {
+  const cacheKey = `${query}|${mode}|${[...sources].sort().join(',')}`;
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiry > Date.now()) return cached.data;
+
   const limits = LIMITS[mode];
 
   const sourceMap: Record<SourceKey, () => Promise<Article[]>> = {
@@ -62,7 +69,7 @@ export async function search(
     sources.map((src, i) => [src, results[i]?.length ?? 0])
   );
 
-  return {
+  const data: SearchResponse = {
     query,
     mode,
     sources_queried: sources,
@@ -76,4 +83,7 @@ export async function search(
     },
     claude_prompt: buildPrompt(query, articles),
   };
+
+  cache.set(cacheKey, { data, expiry: Date.now() + CACHE_TTL });
+  return data;
 }
