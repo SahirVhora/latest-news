@@ -23,6 +23,9 @@ export default function App() {
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem("ln_recent_searches") ?? "[]"); } catch { return []; }
   });
+  const [savedSearches, setSavedSearches] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("ln_saved_searches") ?? "[]"); } catch { return []; }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut: "/" focuses search
@@ -73,6 +76,24 @@ export default function App() {
       setLoading(false);
     }
   }, [query, mode, sources, loading]);
+
+  const saveSearch = (q: string) => {
+    const cleaned = q.trim();
+    if (!cleaned) return;
+    setSavedSearches((prev) => {
+      const updated = [cleaned, ...prev.filter((s) => s !== cleaned)].slice(0, 12);
+      localStorage.setItem("ln_saved_searches", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeSavedSearch = (q: string) => {
+    setSavedSearches((prev) => {
+      const updated = prev.filter((s) => s !== q);
+      localStorage.setItem("ln_saved_searches", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const toggleSource = (key: SourceKey) => {
     setSources((prev) =>
@@ -162,6 +183,19 @@ export default function App() {
             </button>
           </div>
 
+          {/* Saved searches */}
+          {savedSearches.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-slate-500 shrink-0">Saved:</span>
+              {savedSearches.map((s) => (
+                <span key={s} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300">
+                  <button onClick={() => { setQuery(s); handleSearch(s); }} className="hover:text-amber-100">{s}</button>
+                  <button onClick={() => removeSavedSearch(s)} className="text-amber-600 hover:text-amber-300" aria-label={`Remove saved search ${s}`}>x</button>
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Recent searches chips */}
           {!result && !loading && recentSearches.length > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -240,6 +274,15 @@ export default function App() {
         {/* Results */}
         {result && !loading && (
           <div className="animate-slide-up">
+            <div className="mb-4 flex justify-end">
+              <button
+                className="text-xs px-3 py-1.5 rounded-lg border border-navy-700 text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors"
+                onClick={() => saveSearch(activeQuery)}
+              >
+                Save search
+              </button>
+            </div>
+
             {/* Stats + filter bar */}
             <StatsBar
               stats={result.stats}

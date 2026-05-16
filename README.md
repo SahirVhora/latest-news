@@ -129,3 +129,7 @@ latest-news/
 ---
 
 *No API keys. No tracking. 100% open-source.*
+
+## Saved Searches
+
+Searches can now be pinned in the browser as **Saved** topics. This is useful for recurring monitoring themes such as SAP SuccessFactors, AI agents, or UK mortgage rates. Saved searches live in `localStorage`, require no account, and can be removed from the chip list.
