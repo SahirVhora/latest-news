@@ -57,7 +57,7 @@ export default function App() {
         return updated;
       });
     } catch {
-      // Auto-retry once — handles Render free-tier cold starts (30-50s wake time)
+      // Auto-retry once - handles Render free-tier cold starts (30-50s wake time)
       setRetrying(true);
       try {
         await new Promise((r) => setTimeout(r, 4000));
@@ -66,7 +66,7 @@ export default function App() {
       } catch (err2) {
         setError(
           "Could not reach the search server. " +
-          "It may be waking up — please wait 30 seconds and try again."
+          "It may be waking up - please wait 30 seconds and try again."
         );
         console.error(err2);
       } finally {
@@ -266,7 +266,7 @@ export default function App() {
         {retrying && (
           <div className="flex flex-col items-center gap-3 py-16 animate-fade-in">
             <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">Server waking up — retrying automatically…</p>
+            <p className="text-slate-400 text-sm">Server waking up - retrying automatically…</p>
             <p className="text-slate-600 text-xs">Free hosting sleeps after inactivity. Usually ready in &lt;30s.</p>
           </div>
         )}
@@ -326,7 +326,7 @@ export default function App() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-navy-800 py-6 px-4 text-center text-xs text-slate-600">
-        <span className="font-semibold text-slate-500">LatestNews</span> — community intelligence, zero API keys &nbsp;·&nbsp;
+        <span className="font-semibold text-slate-500">LatestNews</span> - community intelligence, zero API keys &nbsp;·&nbsp;
         <a href="https://github.com" className="hover:text-slate-400 transition-colors">GitHub</a>
       </footer>
     </div>

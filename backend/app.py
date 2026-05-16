@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-LatestNews — Flask API backend
+LatestNews - Flask API backend
 Sources: Reddit · Hacker News · Dev.to · GitHub · DuckDuckGo
 All fetched in parallel, relevance-filtered, sorted newest-first.
 
@@ -37,7 +37,7 @@ _scrape_semaphore = threading.Semaphore(5)
 
 DAYS_30 = 30 * 24 * 3600
 
-# Realistic browser UA — some sources block obvious bot strings
+# Realistic browser UA - some sources block obvious bot strings
 BROWSER_UA = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -218,7 +218,7 @@ def search_hn(query: str, limit: int, now: int) -> list[dict]:
 # ── Source: Dev.to ────────────────────────────────────────────────────────────
 def search_devto(query: str, limit: int, now: int) -> list[dict]:
     cutoff = now - DAYS_30
-    # Use proper search endpoint (no `top=30` — that returns "popular of all time"
+    # Use proper search endpoint (no `top=30` - that returns "popular of all time"
     # which gives poor relevance for specific topics)
     url = (
         "https://dev.to/api/articles"
@@ -282,7 +282,7 @@ def search_github(query: str, limit: int, now: int) -> list[dict]:
             continue
         title = repo.get("full_name", "")
         snippet = (repo.get("description") or "")[:400]
-        # For GitHub, relax threshold slightly — repo name may contain the term
+        # For GitHub, relax threshold slightly - repo name may contain the term
         if not is_relevant(title, snippet, query, threshold=0.2):
             continue
         stars = repo.get("stargazers_count") or 0
@@ -308,7 +308,7 @@ def search_github(query: str, limit: int, now: int) -> list[dict]:
 def search_ddg(query: str, limit: int, now: int) -> list[dict]:
     """
     Scrapes DuckDuckGo HTML endpoint.
-    DDG wraps result URLs as redirect links — we decode the real URL from
+    DDG wraps result URLs as redirect links - we decode the real URL from
     the `uddg` query parameter.
     """
     q = urllib.parse.quote(query)
@@ -316,7 +316,7 @@ def search_ddg(query: str, limit: int, now: int) -> list[dict]:
     if not html:
         return []
 
-    # Extract (href, title) pairs — DDG uses class="result__a"
+    # Extract (href, title) pairs - DDG uses class="result__a"
     title_pat = re.compile(
         r'<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>(.*?)</a>',
         re.DOTALL,
@@ -346,7 +346,7 @@ def search_ddg(query: str, limit: int, now: int) -> list[dict]:
             snippet = _strip(snippets_raw[i])
         if not is_relevant(title, snippet, query):
             continue
-        # DDG doesn't give dates — assign a synthetic decreasing timestamp
+        # DDG doesn't give dates - assign a synthetic decreasing timestamp
         ts = now - i * 3600
         articles.append({
             "id": f"ddg_{i}",
@@ -369,7 +369,7 @@ def search_ddg(query: str, limit: int, now: int) -> list[dict]:
 def build_prompt(query: str, articles: list[dict]) -> str:
     top = articles[:10]
     sources = "\n".join(
-        f"- [{a['title'][:80]}]({a['url']}) — {a['source']}, {a['date']}, ↑{a['upvotes']}"
+        f"- [{a['title'][:80]}]({a['url']}) - {a['source']}, {a['date']}, ↑{a['upvotes']}"
         for a in top
     )
     excerpts = "\n\n".join(

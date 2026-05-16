@@ -2,7 +2,7 @@
 
 **Real-time community intelligence across Reddit, Hacker News, Dev.to, GitHub and DuckDuckGo. Zero API keys required.**
 
-Search any topic and instantly see what the community is discussing — newest first — with filters, sort controls, and a ready-to-paste Claude prompt for AI synthesis.
+Search any topic and instantly see what the community is discussing - newest first - with filters, sort controls, and a ready-to-paste Claude prompt for AI synthesis.
 
 ![LatestNews screenshot](https://placeholder.com/screenshot.png)
 
@@ -44,12 +44,12 @@ cd latest-news
 Open two terminals:
 
 ```bash
-# Terminal 1 — Python API
+# Terminal 1 - Python API
 cd latest-news
 source .venv/bin/activate
 python backend/app.py
 
-# Terminal 2 — React dev server (proxies /api → :5000)
+# Terminal 2 - React dev server (proxies /api → :5000)
 cd latest-news/frontend
 npm install
 npm run dev

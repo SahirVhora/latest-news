@@ -64,7 +64,7 @@ export function StatsBar({
           const tip = hasError
             ? `Error: ${sourcesErrors[src]}`
             : isZero
-            ? "No results matched your topic — relevance filter removed all results"
+            ? "No results matched your topic - relevance filter removed all results"
             : `${count} result${count === 1 ? "" : "s"} found`;
 
           return (
@@ -92,7 +92,7 @@ export function StatsBar({
       {Object.entries(sourcesFound).some(([, c]) => c === 0) && (
         <p className="text-xs text-slate-600 bg-navy-900 border border-navy-800 rounded-lg px-3 py-2">
           <span className="text-slate-500">ℹ</span> Sources showing{" "}
-          <span className="text-slate-400">0</span> had results but none matched your topic —
+          <span className="text-slate-400">0</span> had results but none matched your topic -
           the relevance filter removed off-topic articles. Try{" "}
           <span className="text-amber-500/80">Deep</span> mode for broader coverage.
         </p>

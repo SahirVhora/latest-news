@@ -20,7 +20,7 @@ async function safe<T>(fn: () => Promise<T[]>): Promise<T[]> {
 function buildPrompt(query: string, articles: Article[]): string {
   const top = articles.slice(0, 10);
   const sources = top
-    .map((a) => `- [${a.title.slice(0, 80)}](${a.url}) — ${a.source}, ${a.date}, ↑${a.upvotes}`)
+    .map((a) => `- [${a.title.slice(0, 80)}](${a.url}) - ${a.source}, ${a.date}, ↑${a.upvotes}`)
     .join("\n");
   const excerpts = top
     .filter((a) => a.snippet)
@@ -56,7 +56,7 @@ export async function search(
     github: () => searchGitHub(query, limits.github ?? 15),
   };
 
-  // Fetch all selected sources in parallel — failures return empty arrays
+  // Fetch all selected sources in parallel - failures return empty arrays
   const results = await Promise.all(
     sources.map((src) => safe(sourceMap[src] ?? (() => Promise.resolve([]))))
   );
