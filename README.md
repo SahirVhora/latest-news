@@ -4,8 +4,6 @@
 
 Search any topic and instantly see what the community is discussing - newest first - with filters, sort controls, and a ready-to-paste Claude prompt for AI synthesis.
 
-![LatestNews screenshot](https://placeholder.com/screenshot.png)
-
 ---
 
 ## Features
@@ -26,7 +24,7 @@ Search any topic and instantly see what the community is discussing - newest fir
 ## Quick start
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/SahirVhora/latest-news.git
 cd latest-news
 ./start.sh
 # → opens http://localhost:5000
