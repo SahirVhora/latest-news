@@ -27,13 +27,14 @@ Search any topic and instantly see what the community is discussing - newest fir
 git clone https://github.com/SahirVhora/latest-news.git
 cd latest-news
 ./start.sh
-# → opens http://localhost:5000
+# → opens http://localhost:5173
 ```
 
 `start.sh` will:
-1. Create a Python venv and install `flask flask-cors`
-2. Build the React frontend (first run only, ~10s)
-3. Start the server at **http://localhost:5000**
+1. Run `npm install` in the frontend directory (first run only)
+2. Start the Vite dev server at **http://localhost:5173**
+
+**Note:** `start.sh` starts only the frontend dev server. To run the full app with the Flask backend, see [Development mode](#development-mode-hot-reload) below. You'll need **Node.js** for the frontend and **Python 3.10+** for the backend.
 
 ---
 
