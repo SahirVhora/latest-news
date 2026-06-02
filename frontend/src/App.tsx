@@ -9,6 +9,13 @@ import { SOURCE_DOT, SOURCE_KEYS, SOURCE_LABELS } from "./types";
 
 const DEFAULT_SOURCES: SourceKey[] = ["reddit", "hn", "devto", "github"];
 
+const BRIEFING_PACKS = [
+  { label: "SAP", query: "SAP SuccessFactors release updates implementation risks", sources: ["reddit", "hn", "devto", "github"] as SourceKey[] },
+  { label: "AI agents", query: "AI agents autonomous coding tools workflows", sources: ["reddit", "hn", "devto", "github"] as SourceKey[] },
+  { label: "UK property", query: "UK property mortgage rates house prices conveyancing", sources: ["reddit", "hn"] as SourceKey[] },
+  { label: "GitHub trending", query: "GitHub trending developer tools open source", sources: ["github", "hn", "devto"] as SourceKey[] },
+];
+
 export default function App() {
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
@@ -40,8 +47,9 @@ export default function App() {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const handleSearch = useCallback(async (overrideQuery?: string) => {
+  const handleSearch = useCallback(async (overrideQuery?: string, overrideSources?: SourceKey[]) => {
     const q = (overrideQuery ?? query).trim();
+    const activeSources = overrideSources ?? sources;
     if (!q || loading) return;
     setLoading(true);
     setError(null);
@@ -49,7 +57,7 @@ export default function App() {
     setFilterSource(null);
     setActiveQuery(q);
     try {
-      const data = await search(q, mode, sources);
+      const data = await search(q, mode, activeSources);
       setResult(data);
       setRecentSearches((prev) => {
         const updated = [q, ...prev.filter((s) => s !== q)].slice(0, 8);
@@ -61,7 +69,7 @@ export default function App() {
       setRetrying(true);
       try {
         await new Promise((r) => setTimeout(r, 4000));
-        const data = await search(q, mode, sources);
+        const data = await search(q, mode, activeSources);
         setResult(data);
       } catch (err2) {
         setError(
@@ -182,6 +190,28 @@ export default function App() {
               {loading ? "Searching…" : "Search"}
             </button>
           </div>
+
+          {/* Briefing packs */}
+          {!result && !loading && (
+            <div className="mt-4 rounded-2xl border border-navy-700 bg-navy-900/60 p-3 shadow-soft">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Briefing packs</span>
+                <span className="text-[11px] text-slate-600">Saved-search starters for your core watchlists</span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {BRIEFING_PACKS.map((pack) => (
+                  <button
+                    key={pack.label}
+                    onClick={() => { setSources(pack.sources); setQuery(pack.query); handleSearch(pack.query, pack.sources); }}
+                    className="rounded-xl border border-navy-700 bg-navy-800/70 px-3 py-2 text-left transition-colors hover:border-amber-500 hover:bg-navy-700"
+                  >
+                    <span className="block text-sm font-bold text-slate-200">{pack.label}</span>
+                    <span className="mt-1 block text-[11px] leading-4 text-slate-500">{pack.query}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Saved searches */}
           {savedSearches.length > 0 && (
