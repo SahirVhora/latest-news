@@ -3,6 +3,7 @@ import { SOURCE_COLORS } from "../types";
 
 interface Props {
   article: Article;
+  relevance?: { label: string; why: string; confidence: number };
 }
 
 function fmt(n: number): string {
@@ -10,7 +11,7 @@ function fmt(n: number): string {
   return n.toString();
 }
 
-export function ResultCard({ article }: Props) {
+export function ResultCard({ article, relevance }: Props) {
   const {
     source, title, url, date, upvotes, comments, snippet, subreddit, tags,
   } = article;
@@ -21,6 +22,18 @@ export function ResultCard({ article }: Props) {
 
   return (
     <article className="card flex flex-col gap-3 group">
+      {relevance && (
+        <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+          <div>
+            <div className="text-xs font-bold text-amber-300">{relevance.label}</div>
+            <div className="mt-0.5 text-[11px] leading-4 text-slate-400">{relevance.why}</div>
+          </div>
+          <span className="shrink-0 rounded-full bg-navy-900 px-2 py-0.5 text-[11px] font-semibold text-slate-300" title="Source confidence">
+            {relevance.confidence}%
+          </span>
+        </div>
+      )}
+
       {/* Source + date row */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">

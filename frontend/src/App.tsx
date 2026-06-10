@@ -16,6 +16,24 @@ const BRIEFING_PACKS = [
   { label: "GitHub trending", query: "GitHub trending developer tools open source", sources: ["github", "hn", "devto"] as SourceKey[] },
 ];
 
+function tokenize(input: string): string[] {
+  return input.toLowerCase().split(/[^a-z0-9+#.]+/).filter((w) => w.length > 2);
+}
+
+function rankPersonalRelevance(article: Article, queryText: string) {
+  const queryTokens = new Set(tokenize(queryText));
+  const haystack = tokenize([article.title, article.snippet, article.tags.join(" "), article.subreddit ?? ""].join(" "));
+  const uniqueMatches = new Set(haystack.filter((w) => queryTokens.has(w))).size;
+  const engagement = Math.min(30, Math.round(Math.log10(Math.max(1, article.upvotes + article.comments + 1)) * 10));
+  const freshness = article.date_ts > Date.now() / 1000 - 86400 ? 20 : article.date_ts > Date.now() / 1000 - 604800 ? 10 : 0;
+  const confidence = Math.min(100, 35 + uniqueMatches * 15 + engagement + freshness);
+  const label = confidence >= 75 ? "Act Now" : confidence >= 50 ? "Read Later" : "Ignore";
+  const why = uniqueMatches > 0
+    ? `Matches ${uniqueMatches} search signal${uniqueMatches === 1 ? "" : "s"} with ${article.source} engagement`
+    : `Low direct match to "${queryText}" despite ${article.source} activity`;
+  return { label, why, confidence };
+}
+
 export default function App() {
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
@@ -332,7 +350,7 @@ export default function App() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4">
                 {displayedArticles.map((article) => (
-                  <ResultCard key={article.id} article={article} />
+                  <ResultCard key={article.id} article={article} relevance={rankPersonalRelevance(article, activeQuery)} />
                 ))}
               </div>
             )}
