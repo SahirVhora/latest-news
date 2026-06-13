@@ -525,7 +525,14 @@ def handle_exception(e):
 
 
 if __name__ == "__main__":
+    # Defaults are safe for local dev (loopback only, debugger off). Override
+    # via env: FLASK_DEBUG=1 enables the Werkzeug debugger (do NOT do this on a
+    # reachable host - it allows arbitrary code execution); HOST=0.0.0.0 exposes
+    # the server on all interfaces.
+    debug = os.getenv("FLASK_DEBUG", "").lower() in ("1", "true", "yes", "on")
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", "5000"))
     print("\n🌐  LatestNews API")
-    print("   http://localhost:5000/api/search?q=<topic>&mode=standard&sources=reddit,hn,devto,github,ddg")
-    print("   http://localhost:5000  (after: cd frontend && npm run build)\n")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    print(f"   http://{host}:{port}/api/search?q=<topic>&mode=standard&sources=reddit,hn,devto,github,ddg")
+    print(f"   http://{host}:{port}  (after: cd frontend && npm run build)\n")
+    app.run(host=host, port=port, debug=debug)
