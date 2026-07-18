@@ -19,3 +19,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+.audit-result.json
+.claude/settings.local.json
+.under-anything/
