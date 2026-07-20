@@ -1,6 +1,6 @@
 # LatestNews
 
-**Real-time community intelligence across Reddit, Hacker News, Dev.to, GitHub and DuckDuckGo. Zero API keys required.**
+**Real-time community intelligence across Reddit, Hacker News, Dev.to and GitHub. The optional local backend also supports DuckDuckGo. Zero API keys required.**
 
 Search any topic and instantly see what the community is discussing - newest first - with filters, sort controls, and a ready-to-paste Claude prompt for AI synthesis.
 
@@ -10,7 +10,8 @@ Search any topic and instantly see what the community is discussing - newest fir
 
 | Feature | Detail |
 |---|---|
-| **5 live sources** | Reddit · Hacker News · Dev.to · GitHub · DuckDuckGo |
+| **4 live web sources** | Reddit · Hacker News · Dev.to · GitHub |
+| **Optional local source** | DuckDuckGo through the Flask backend, not the GitHub Pages build |
 | **Zero API keys** | All sources use public/free endpoints |
 | **Newest first** | Results sorted by date descending by default |
 | **Filter by source** | Click any source tab to narrow results |
